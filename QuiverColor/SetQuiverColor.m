@@ -1,13 +1,22 @@
 function SetQuiverColor(q,currentColormap,varargin)
+%--------------------------------------------------
 % function SetQuiverColor(q,currentColormap)
 %
 % INPUT:
 %   q = handle to quiver plot
 %   currentColormap = e.g. jet;
 % OPTIONAL INPUT ('Field',value):
-%   'range' = [min,max]; % Range of the magnitude in the colorbar (used to saturate the min and max value)
+%   'range' = [min,max]; % Range of the magnitude in the colorbar
+%                          (used to possibly saturate or expand the color used compared to the vectors)
 %   'mags' = magnitude; % Actual magnitude of the vectors
 %
+%--------------------------------------------------
+%   Authorship:
+%     This code is heavily based from the answer by the user Suever on Stackoverflow forum
+%     at: https://stackoverflow.com/questions/29632430/quiver3-arrow-color-corresponding-to-magnitude
+%
+%     I, Alexandre De Spiegleer, only added minor changes to the original answer to have more flexibility.
+%--------------------------------------------------
 
 %// Set default values
 range = [];
@@ -43,7 +52,6 @@ if ~isempty(range) & isnumeric(range) & numel(range)==2
 end
 
 %// Now determine the color to make each arrow using a colormap
-%// Gets the edges for each color of the colormap
 if ~isempty(range) & isnumeric(range) & numel(range)==2
   Edges = linspace(range(1),range(2),size(currentColormap, 1)+1);
   [~, ~, ind] = histcounts(mags, Edges);

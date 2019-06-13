@@ -9,15 +9,24 @@ function SetQuiverLength(q,mags)
 %        mags = Desired length of each vector in units of the x,y axis
 %               If mags is a scalar, all the vector will have that length
 %
+% NOTE: For some unknown reason, MATLAB does not always simply change the length of the vectors and requires a
+%       pause statement towards the end.
+%       Would your vectors not be the right size, increase the duration of the pause
+%       (or even better, suggest a solution that does not require a pause)
+%
+%--------------------------------------------------
+%   Authorship:
+%     Function made by Alexandre De Spiegeleer. Feel free to use it.
 %--------------------------------------------------
 
 %// Start by removing the autoscale option
 set(q,'AutoScale','Off');
 
+%// Get the Head and Tail options
 H = get(q.Head);
 T = get(q.Tail);
 
-%// Handle input mags
+%// Handle mags input
 if isempty(mags)
   warning('No input was given for the length of the vectors. They are now all of length 1.');
   mags = ones(size(T.VertexData,2)/2,1);
@@ -35,7 +44,7 @@ else
   return;
 end
 
-%// Reshape the head and the tail
+%// Reshape the head and the tail (It is easier to think about it then but requires some repmat and permute)
 %// The head has 3 vertices and the tail has 2.
 Tail_ori = reshape(T.VertexData,size(T.VertexData,1),2,[]);
 Head_ori = reshape(H.VertexData,size(H.VertexData,1),3,[]);
@@ -83,6 +92,8 @@ HeadVertex(:,:,Idx_NaN) = repmat(TailVertex(:,1,Idx_NaN),1,3,1);
 HeadVertex = reshape(HeadVertex,size(H.VertexData,1),[]);
 TailVertex = reshape(TailVertex,size(T.VertexData,1),[]);
 
+%// Don't ask me about this line ...
+%// Matlab sucks and does not do the change graphically if I don't have a pause or a keyboard ...
 pause(0.0102)
 
 %// Set the data to the quiver properties
