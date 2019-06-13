@@ -2,7 +2,7 @@
 
 Here you find 2 MATLAB functions: SetQuiverColor and SetQuiverLength.
 They allow you to change the appearance of quiver plot in MATLAB.
-You can either change the color of each arrow (SetQuiverColor) and
+You can change the color of each arrow (SetQuiverColor) and
 change the length of each arrow (SetQuiverLength) in units of the x/y/z axis.
 It gives better control of what is going on.
 
