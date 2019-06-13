@@ -19,9 +19,9 @@ function SetQuiverLength(q,mags)
 %     z = x .* exp(-x.^2 - y.^2);
 %     [u,v,w] = surfnorm(x,y,z);
 %     q = quiver3(x,y,z,u,v,w); hold on; surf(x,y,z); hold off;
-%     drawnow;                  % This is needed as, if the plot as not shown yet, the VertexData for the quiver are not existent.
+%     drawnow;                  % This is needed as, if the plot is not plotted, the VertexData for the quiver are not existent.
 %     view(180,0);
-%     mag = 0.1*ones(size(u));  % Make all the vectors of length 0.1
+%     mag = 0.1*ones(size(u));  % Length of the vectors : 0.1
 %     SetQuiverLength(q,mag);
 %
 %--------------------------------------------------
