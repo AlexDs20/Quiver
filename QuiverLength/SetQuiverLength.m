@@ -14,6 +14,16 @@ function SetQuiverLength(q,mags)
 %       Would your vectors not be the right size, increase the duration of the pause
 %       (or even better, suggest a solution that does not require a pause)
 %
+% Example:
+%     [x,y] = meshgrid(-2:.2:2,-1:.15:1);
+%     z = x .* exp(-x.^2 - y.^2);
+%     [u,v,w] = surfnorm(x,y,z);
+%     q = quiver3(x,y,z,u,v,w); hold on; surf(x,y,z); hold off;
+%     drawnow;                  % This is needed as, if the plot as not shown yet, the VertexData for the quiver are not existent.
+%     view(180,0);
+%     mag = 0.1*ones(size(u));  % Make all the vectors of length 0.1
+%     SetQuiverLength(q,mag);
+%
 %--------------------------------------------------
 %   Authorship:
 %     Function made by Alexandre De Spiegeleer. Feel free to use it.
