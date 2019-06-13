@@ -14,9 +14,12 @@ function SetQuiverColor(q,currentColormap,varargin)
 %   [x,y] = meshgrid(-2:.2:2,-1:.15:1);
 %   z = x .* exp(-x.^2 - y.^2);
 %   [u,v,w] = surfnorm(x,y,z);
-%   q = quiver3(x,y,z,u,v,w); hold on; surf(x,y,z); hold off;
-%   mag = 5.*rand(size(u));
-%   SetQuiverColor(q,jet,'mags',mag,'range',[-2 8]);
+%   q = quiver3(x,y,z,u,v,w);
+%   mag = 1+3.*rand(size(u));   % Creates number between 1 and 4
+%   colormap(jet);
+%   colorbar;
+%   SetQuiverColor(q,jet,'mags',mag,'range',[-2 8]);  % Color range between -2 8 => all colors are not used
+%   caxis([-2 8]);
 %
 %--------------------------------------------------
 %   Authorship:
