@@ -54,6 +54,11 @@ else
   return;
 end
 
+if find(mags<0)
+  warning(['At least one of the length is requested to be negative. ' ...
+          'This will swap the direction of the vector(s)!']);
+end
+
 %// Reshape the head and the tail (It is easier to think about it then but requires some repmat and permute)
 %// The head has 3 vertices and the tail has 2.
 Tail_ori = reshape(T.VertexData,size(T.VertexData,1),2,[]);
