@@ -59,6 +59,12 @@ if find(mags<0)
           'This will swap the direction of the vector(s)!']);
 end
 
+%// The data for which there is no vector should be removed
+%// as there is no Head or Tail data for those.
+if numel(mags) == numel(q.UData)
+  mags(isnan(q.UData)) = [];
+end
+
 %// Reshape the head and the tail (It is easier to think about it then but requires some repmat and permute)
 %// The head has 3 vertices and the tail has 2.
 Tail_ori = reshape(T.VertexData,size(T.VertexData,1),2,[]);

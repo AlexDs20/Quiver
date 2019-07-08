@@ -20,13 +20,14 @@ function SetQuiverColor(q,currentColormap,varargin)
 %   colorbar;
 %   SetQuiverColor(q,jet,'mags',mag,'range',[-2 8]);  % Color range between -2 8 => all colors are not used
 %   caxis([-2 8]);
+%   set(gca,'Color','k');
 %
 %--------------------------------------------------
 %   Authorship:
 %     This code is heavily based from the answer by the user Suever on Stackoverflow forum
 %     at: https://stackoverflow.com/questions/29632430/quiver3-arrow-color-corresponding-to-magnitude
 %
-%     I, Alexandre De Spiegleer, only added minor changes to the original answer to have more flexibility.
+%     I, Alexandre De Spiegeleer, only added minor changes to the original answer to have a bit more flexibility.
 %--------------------------------------------------
 
 %// Set default values
@@ -45,7 +46,7 @@ qW = q.WData(~isnan(q.WData));
 %// Compute/read the magnitude of the vectors
 if find(strcmp('mags',varargin))
   mags = varargin{ find(strcmp('mags',varargin))+1 };
-  mags = mags(~isnan(mags));  % This reshapes automatically
+  mags = mags(~isnan(mags)&~isnan(q.UData));  % This reshapes automatically
 else
   mags = sqrt(sum(cat(2, qU, qV, ...
              reshape(qW, numel(qU), [])).^2, 2));
