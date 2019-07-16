@@ -11,6 +11,8 @@ function SetQuiverLength(q,mags,varargin)
 % Optional inputs: given as ('variable',value)
 %        'HeadLength' = single value for the length of the head in units of the xyz axis.
 %                       It is applied to all the vectors
+%        'HeadAngle' = angle between the two lines forming the head
+%                      default=28.0724^\circ
 %
 % NOTE: For some unknown reason, MATLAB does not always simply change the length of the vectors and requires a
 %       pause statement towards the end.
@@ -25,7 +27,7 @@ function SetQuiverLength(q,mags,varargin)
 %     drawnow;                  % This is needed as, if the plot is not plotted, the VertexData for the quiver are not existent.
 %     view(180,0);
 %     mag = 0.1*ones(size(u));  % Length of the vectors : 0.1
-%     SetQuiverLength(q,mag,'HeadLength',0.05);
+%     SetQuiverLength(q,mag,'HeadLength',0.05,'HeadAngle',90);
 %
 %--------------------------------------------------
 %   Authorship:
@@ -34,10 +36,14 @@ function SetQuiverLength(q,mags,varargin)
 
 %// Set default values of varargin
 HeadLength = [];
+HeadAngle = [];
 
 %// Read the optional inputs
 if find(strcmp('HeadLength',varargin))
   HeadLength = varargin{ find(strcmp('HeadLength',varargin))+1 };
+end
+if find(strcmp('HeadAngle',varargin))
+  HeadAngle = varargin{ find(strcmp('HeadAngle',varargin))+1 };
 end
 
 %// Start by removing the autoscale option
@@ -88,6 +94,14 @@ Head_length = squeeze(sqrt(sum(diff(Head_ori(:,[1,2],:),1,2).^2,1)));
 %// Head-Tail original ratio
 Length_ratio = Head_length./Tail_length;
 
+%// New length of head
+if isempty(HeadLength)
+  Head_mag = mags.*Length_ratio;
+  Head_mag = permute(Head_mag(:,:,ones(size(H.VertexData,1),1)),[3 2 1]);
+elseif ~isempty(HeadLength)
+  Head_mag = repmat(HeadLength,[size(H.VertexData,1) 1 size(Head_ori,3)]);
+end
+
 %// Direction tail
 Tail_dir = diff(Tail_ori,1,2)./permute(Tail_length(:,:,ones(size(T.VertexData,1),1)),[3 2 1]);
 
@@ -95,12 +109,27 @@ Tail_dir = diff(Tail_ori,1,2)./permute(Tail_length(:,:,ones(size(T.VertexData,1)
 Head_dir_a = diff(Head_ori(:,[2,1],:),1,2)./permute(Head_length(:,:,ones(size(H.VertexData,1),1)),[3 2 1]);
 Head_dir_b = diff(Head_ori(:,[2,3],:),1,2)./permute(Head_length(:,:,ones(size(H.VertexData,1),1)),[3 2 1]);
 
-%// New length of head
-if isempty(HeadLength)
-  Head_mag = mags.*Length_ratio;
-  Head_mag = permute(Head_mag(:,:,ones(size(H.VertexData,1),1)),[3 2 1]);
-elseif ~isempty(HeadLength)
-  Head_mag = repmat(HeadLength,[size(H.VertexData,1) 1 size(Head_ori,3)]);
+%// Set new HeadAngle by use of Rodrigues' rotation formula
+if ~isempty(HeadAngle)
+  % rotation axis:
+  k = cross(Head_dir_b,Head_dir_a,1)./sqrt(sum(cross(Head_dir_b,Head_dir_a,1).^2,1));
+  % Original angle:
+  alpha = acosd( dot(Head_dir_a,Head_dir_b,1) );
+  % Angle of rotation:
+  theta = (HeadAngle-alpha)/2;
+  % Rotation
+  ct = repmat(cosd(theta),size(H.VertexData,1),1,1);
+  st = repmat(sind(theta),size(H.VertexData,1),1,1);
+  Head_dir_a_r = Head_dir_a .* ct + ...
+                cross(k,Head_dir_a,1) .* st + ...
+                k .* repmat(dot(k,Head_dir_a,1),size(H.VertexData,1),1,1) .* (1-ct);
+  ct = repmat(cosd(-theta),size(H.VertexData,1),1,1);
+  st = repmat(sind(-theta),size(H.VertexData,1),1,1);
+  Head_dir_b_r = Head_dir_b .* ct + ...
+                cross(k,Head_dir_b,1) .* st + ...
+                k .* repmat(dot(k,Head_dir_b,1),size(H.VertexData,1),1,1) .* (1-ct);
+  Head_dir_a = Head_dir_a_r;
+  Head_dir_b = Head_dir_b_r;
 end
 
 %// New Tail End = start of tail + magnitude*normalized direction
