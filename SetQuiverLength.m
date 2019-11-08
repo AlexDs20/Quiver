@@ -24,9 +24,12 @@ function SetQuiverLength(q,mags,varargin)
 %     z = x .* exp(-x.^2 - y.^2);
 %     [u,v,w] = surfnorm(x,y,z);
 %     q = quiver3(x,y,z,u,v,w); hold on; surf(x,y,z); hold off;
-%     drawnow;                  % This is needed as, if the plot is not plotted, the VertexData for the quiver are not existent.
 %     view(180,0);
-%     mag = 0.1*ones(size(u));  % Length of the vectors : 0.1
+%     % Change length of vectors between the grid lines
+%     mag = repmat(linspace(0.1,1,size(x,2)),size(x,1),1);
+%     % Or all vectors could be the same length (0.1)
+%     %mag = 0.1*ones(size(u));  % Length of the vectors : 0.1
+%     drawnow;                  % This is needed as, if the plot is not plotted, the VertexData for the quiver are not existent.
 %     SetQuiverLength(q,mag,'HeadLength',0.05,'HeadAngle',90);
 %
 %--------------------------------------------------
@@ -110,6 +113,7 @@ Head_dir_a = diff(Head_ori(:,[2,1],:),1,2)./permute(Head_length(:,:,ones(size(H.
 Head_dir_b = diff(Head_ori(:,[2,3],:),1,2)./permute(Head_length(:,:,ones(size(H.VertexData,1),1)),[3 2 1]);
 
 %// Set new HeadAngle by use of Rodrigues' rotation formula
+%keyboard
 if ~isempty(HeadAngle)
   % rotation axis:
   k = cross(Head_dir_b,Head_dir_a,1)./sqrt(sum(cross(Head_dir_b,Head_dir_a,1).^2,1));
@@ -159,7 +163,8 @@ TailVertex = reshape(TailVertex,size(T.VertexData,1),[]);
 
 %// Don't ask me about this line ...
 %// Matlab sucks and does not do the change graphically if I don't have a pause or a keyboard ...
-pause(0.0102)
+drawnow;
+pause(0.01);
 
 %// Set the data to the quiver properties
 set(q.Head,'VertexData',HeadVertex);
