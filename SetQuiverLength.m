@@ -13,6 +13,8 @@ function SetQuiverLength(q,mags,varargin)
 %                       It is applied to all the vectors
 %        'HeadAngle' = angle between the two lines forming the head
 %                      default=28.0724^\circ
+%        'RotHead'   = Angle [deg] by which the head will be rotated around the vector axis.
+%                      This allows to set the head in different planes
 %
 % NOTE: For some unknown reason, MATLAB does not always simply change the length of the vectors and requires a
 %       pause statement towards the end.
@@ -24,12 +26,9 @@ function SetQuiverLength(q,mags,varargin)
 %     z = x .* exp(-x.^2 - y.^2);
 %     [u,v,w] = surfnorm(x,y,z);
 %     q = quiver3(x,y,z,u,v,w); hold on; surf(x,y,z); hold off;
-%     view(180,0);
-%     % Change length of vectors between the grid lines
-%     mag = repmat(linspace(0.1,1,size(x,2)),size(x,1),1);
-%     % Or all vectors could be the same length (0.1)
-%     %mag = 0.1*ones(size(u));  % Length of the vectors : 0.1
 %     drawnow;                  % This is needed as, if the plot is not plotted, the VertexData for the quiver are not existent.
+%     view(180,0);
+%     mag = 0.1*ones(size(u));  % Length of the vectors : 0.1
 %     SetQuiverLength(q,mag,'HeadLength',0.05,'HeadAngle',90);
 %
 %--------------------------------------------------
@@ -40,6 +39,7 @@ function SetQuiverLength(q,mags,varargin)
 %// Set default values of varargin
 HeadLength = [];
 HeadAngle = [];
+RotHead = [];
 
 %// Read the optional inputs
 if find(strcmp('HeadLength',varargin))
@@ -47,6 +47,9 @@ if find(strcmp('HeadLength',varargin))
 end
 if find(strcmp('HeadAngle',varargin))
   HeadAngle = varargin{ find(strcmp('HeadAngle',varargin))+1 };
+end
+if find(strcmp('RotHead',varargin))
+  RotHead = varargin{ find(strcmp('RotHead',varargin))+1 };
 end
 
 %// Start by removing the autoscale option
@@ -113,7 +116,6 @@ Head_dir_a = diff(Head_ori(:,[2,1],:),1,2)./permute(Head_length(:,:,ones(size(H.
 Head_dir_b = diff(Head_ori(:,[2,3],:),1,2)./permute(Head_length(:,:,ones(size(H.VertexData,1),1)),[3 2 1]);
 
 %// Set new HeadAngle by use of Rodrigues' rotation formula
-%keyboard
 if ~isempty(HeadAngle)
   % rotation axis:
   k = cross(Head_dir_b,Head_dir_a,1)./sqrt(sum(cross(Head_dir_b,Head_dir_a,1).^2,1));
@@ -129,6 +131,25 @@ if ~isempty(HeadAngle)
                 k .* repmat(dot(k,Head_dir_a,1),size(H.VertexData,1),1,1) .* (1-ct);
   ct = repmat(cosd(-theta),size(H.VertexData,1),1,1);
   st = repmat(sind(-theta),size(H.VertexData,1),1,1);
+  Head_dir_b_r = Head_dir_b .* ct + ...
+                cross(k,Head_dir_b,1) .* st + ...
+                k .* repmat(dot(k,Head_dir_b,1),size(H.VertexData,1),1,1) .* (1-ct);
+  Head_dir_a = Head_dir_a_r;
+  Head_dir_b = Head_dir_b_r;
+end
+
+%// Set new RotHead by use of Rodrigues' rotation formula
+if ~isempty(RotHead)
+  % rotation axis:
+  k = Tail_dir;
+  % Angle of rotation:
+  theta = RotHead;
+  % Rotation
+  ct = repmat(cosd(theta),size(H.VertexData,1),1,1);
+  st = repmat(sind(theta),size(H.VertexData,1),1,1);
+  Head_dir_a_r = Head_dir_a .* ct + ...
+                cross(k,Head_dir_a,1) .* st + ...
+                k .* repmat(dot(k,Head_dir_a,1),size(H.VertexData,1),1,1) .* (1-ct);
   Head_dir_b_r = Head_dir_b .* ct + ...
                 cross(k,Head_dir_b,1) .* st + ...
                 k .* repmat(dot(k,Head_dir_b,1),size(H.VertexData,1),1,1) .* (1-ct);
@@ -163,8 +184,7 @@ TailVertex = reshape(TailVertex,size(T.VertexData,1),[]);
 
 %// Don't ask me about this line ...
 %// Matlab sucks and does not do the change graphically if I don't have a pause or a keyboard ...
-drawnow;
-pause(0.01);
+pause(0.0102)
 
 %// Set the data to the quiver properties
 set(q.Head,'VertexData',HeadVertex);
